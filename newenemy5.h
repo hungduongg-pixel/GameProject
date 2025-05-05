@@ -48,12 +48,12 @@ struct NewEnemy5 {
         if (!endFont) std::cerr << "❌ Không tải được Legacy.ttf: " << TTF_GetError() << std::endl;
 
         SDL_Color yellow = {255, 255, 0, 255};
-        SDL_Surface* endSurface = TTF_RenderUTF8_Blended(endFont, "BẠN THẮNG", yellow);
+        SDL_Surface* endSurface = TTF_RenderUTF8_Blended(endFont, "YOU WIN", yellow);
         endTextTexture = endSurface ? SDL_CreateTextureFromSurface(renderer, endSurface) : nullptr;
         endTextRect = endSurface ? SDL_Rect{(SCREEN_WIDTH - endSurface->w) / 2, 0, endSurface->w, endSurface->h} : SDL_Rect{0, 0, 0, 0};
         if (endSurface) SDL_FreeSurface(endSurface);
 
-        SDL_Surface* helloSurface = TTF_RenderUTF8_Blended(endFont, "CHÚC MỪNG!", yellow);
+        SDL_Surface* helloSurface = TTF_RenderUTF8_Blended(endFont, "CONGRUTULATIONS!", yellow);
         helloTextTexture = helloSurface ? SDL_CreateTextureFromSurface(renderer, helloSurface) : nullptr;
         helloTextRect = helloSurface ? SDL_Rect{0, 0, helloSurface->w, helloSurface->h} : SDL_Rect{0, 0, 0, 0};
         if (helloSurface) SDL_FreeSurface(helloSurface);

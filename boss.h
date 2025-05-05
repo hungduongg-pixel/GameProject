@@ -39,6 +39,7 @@ struct Boss {
     int maxHealth;
     bool shouldShake;
     int shakeDelayTimer;
+    bool attackDirection; // Thuộc tính mới
 
     void init(SDL_Renderer* renderer, float start_x, float start_y, float min_x, float max_x) {
         float offset = 150.0f;
@@ -121,6 +122,7 @@ struct Boss {
         maxHealth = 100;
         shouldShake = false;
         shakeDelayTimer = 0;
+        attackDirection = true; // Giá trị khởi tạo mặc định
     }
 
     void update(float playerX, float playerY, Camera& camera) {
@@ -167,6 +169,12 @@ struct Boss {
                 lastAttackSheetIndex = currentAttackSheetIndex;
                 shouldShake = false;
                 shakeDelayTimer = 120;
+                // Xác định hướng tấn công dựa trên vị trí người chơi
+                if (playerX < x) {
+                    attackDirection = false; // Người chơi ở bên trái -> tấn công sang trái
+                } else {
+                    attackDirection = true;  // Người chơi ở bên phải -> tấn công sang phải
+                }
             }
 
             if (isAttacking) {
@@ -176,7 +184,7 @@ struct Boss {
                     currentFrame++;
                     if (currentFrame >= attackFrameCount) {
                         if (currentAttackSheetIndex == 1) { // Sheet thứ 2 (index 1)
-                            camera.startShake(10,20);
+                            camera.startShake(10, 20);
                         }
                         isAttacking = false;
                         currentFrame = 0;
@@ -229,62 +237,63 @@ struct Boss {
         }
     }
 
-    void render(SDL_Renderer* renderer, float cameraX) {
-        int frameWidth, frameHeight;
+ void render(SDL_Renderer* renderer, float cameraX) {
+    int frameWidth, frameHeight;
+    if (isDying) {
+        frameWidth = 292;
+        frameHeight = 122;
+    } else if (isHurt) {
+        frameWidth = 293;
+        frameHeight = 121;
+    } else if (isAttacking) {
+        frameWidth = 290;
+        frameHeight = 120;
+    } else if (isMoving) {
+        frameWidth = 288;
+        frameHeight = 118;
+    } else {
+        frameWidth = 292;
+        frameHeight = 121;
+    }
+
+    int newWidth = static_cast<int>(frameWidth * scale);
+    int newHeight = static_cast<int>(frameHeight * scale);
+    int renderY = static_cast<int>(y) - newHeight + frameHeight;
+
+    float offset = 150.0f;
+    SDL_Rect dstRect = {
+        static_cast<int>(x - cameraX - offset),
+        renderY,
+        newWidth,
+        newHeight
+    };
+
+    if (dstRect.x + dstRect.w > 0 && dstRect.x < SCREEN_WIDTH) {
+        SDL_Texture* currentTexture = nullptr;
         if (isDying) {
-            frameWidth = 292;
-            frameHeight = 122;
+            currentTexture = dyingTextures[currentDyingSheetIndex];
         } else if (isHurt) {
-            frameWidth = 293;
-            frameHeight = 121;
+            currentTexture = hurtTexture;
         } else if (isAttacking) {
-            frameWidth = 290;
-            frameHeight = 120;
+            currentTexture = attackTextures[currentAttackSheetIndex];
         } else if (isMoving) {
-            frameWidth = 288;
-            frameHeight = 118;
+            currentTexture = moveTextures[currentMoveSheetIndex];
         } else {
-            frameWidth = 292;
-            frameHeight = 121;
+            currentTexture = idleTexture;
         }
 
-        int newWidth = static_cast<int>(frameWidth * scale);
-        int newHeight = static_cast<int>(frameHeight * scale);
-        int renderY = static_cast<int>(y) - newHeight + frameHeight;
+        SDL_Rect srcRect = { currentFrame * frameWidth, 0, frameWidth, frameHeight };
+        // Không lật sheet tấn công, chỉ lật sheet di chuyển và idle khi movingRight = true
+        SDL_RendererFlip flip = isAttacking ? SDL_FLIP_NONE : (movingRight ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 
-        float offset = 150.0f;
-        SDL_Rect dstRect = {
-            static_cast<int>(x - cameraX - offset),
-            renderY,
-            newWidth,
-            newHeight
-        };
-
-        if (dstRect.x + dstRect.w > 0 && dstRect.x < SCREEN_WIDTH) {
-            SDL_Texture* currentTexture = nullptr;
-            if (isDying) {
-                currentTexture = dyingTextures[currentDyingSheetIndex];
-            } else if (isHurt) {
-                currentTexture = hurtTexture;
-            } else if (isAttacking) {
-                currentTexture = attackTextures[currentAttackSheetIndex];
-            } else if (isMoving) {
-                currentTexture = moveTextures[currentMoveSheetIndex];
-            } else {
-                currentTexture = idleTexture;
-            }
-
-            SDL_Rect srcRect = { currentFrame * frameWidth, 0, frameWidth, frameHeight };
-            SDL_RendererFlip flip = isAttacking ? (movingRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL) : (movingRight ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
-
-            if (currentTexture) {
-                SDL_RenderCopyEx(renderer, currentTexture, &srcRect, &dstRect, 0, NULL, flip);
-            } else {
-                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-                SDL_RenderFillRect(renderer, &dstRect);
-            }
+        if (currentTexture) {
+            SDL_RenderCopyEx(renderer, currentTexture, &srcRect, &dstRect, 0, NULL, flip);
+        } else {
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderFillRect(renderer, &dstRect);
         }
     }
+}
 
     int getCurrentFrameWidth() const {
         if (isDying) return 292;
@@ -295,32 +304,32 @@ struct Boss {
     }
 
     void renderHealthBar(SDL_Renderer* renderer, float cameraX) {
-        if (isDying || toRemove) return;
+    if (isDying || toRemove) return;
 
-        float offset = 150.0f;
-        int frameWidth = getCurrentFrameWidth();
-        int newWidth = static_cast<int>(frameWidth * scale);
-        int dstX = static_cast<int>(x - cameraX - offset);
+    float offset = 150.0f;
+    int frameWidth = getCurrentFrameWidth();
+    int newWidth = static_cast<int>(frameWidth * scale);
+    int dstX = static_cast<int>(x - cameraX - offset);
 
-        // Chỉ render thanh máu nếu boss hiển thị trên màn hình
-        if (dstX + newWidth > 0 && dstX < SCREEN_WIDTH) {
-            const int BAR_WIDTH = 1180;
-            const int BAR_HEIGHT = 20;
-            const int BAR_X = (SCREEN_WIDTH - BAR_WIDTH) / 2;
-            const int BAR_Y = SCREEN_HEIGHT - BAR_HEIGHT - 10;
+    // Chỉ hiển thị thanh máu khi boss nằm hoàn toàn hoặc gần hoàn toàn trong màn hình
+    int margin = 100; // Khoảng cách từ mép màn hình (có thể điều chỉnh)
+    if (dstX > -margin && dstX + newWidth < SCREEN_WIDTH + margin) {
+        const int BAR_WIDTH = 1180;
+        const int BAR_HEIGHT = 20;
+        const int BAR_X = (SCREEN_WIDTH - BAR_WIDTH) / 2;
+        const int BAR_Y = SCREEN_HEIGHT - BAR_HEIGHT - 10;
 
-            SDL_SetRenderDrawColor(renderer, 128, 128, 128, 255);
-            SDL_Rect bgRect = { BAR_X, BAR_Y, BAR_WIDTH, BAR_HEIGHT };
-            SDL_RenderFillRect(renderer, &bgRect);
+        SDL_SetRenderDrawColor(renderer, 128, 128, 128, 255);
+        SDL_Rect bgRect = { BAR_X, BAR_Y, BAR_WIDTH, BAR_HEIGHT };
+        SDL_RenderFillRect(renderer, &bgRect);
 
-            int healthWidth = static_cast<int>((static_cast<float>(health) / maxHealth) * BAR_WIDTH);
-            if (healthWidth < 0) healthWidth = 0;
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_Rect healthRect = { BAR_X, BAR_Y, healthWidth, BAR_HEIGHT };
-            SDL_RenderFillRect(renderer, &healthRect);
-        }
+        int healthWidth = static_cast<int>((static_cast<float>(health) / maxHealth) * BAR_WIDTH);
+        if (healthWidth < 0) healthWidth = 0;
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_Rect healthRect = { BAR_X, BAR_Y, healthWidth, BAR_HEIGHT };
+        SDL_RenderFillRect(renderer, &healthRect);
     }
-
+}
     void cleanup() {
         for (auto& texture : moveTextures) {
             if (texture) SDL_DestroyTexture(texture);

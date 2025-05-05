@@ -32,7 +32,20 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="main.cpp" />
+		<Unit filename="boss.h" />
+		<Unit filename="bullet.h" />
+		<Unit filename="camera.h" />
+		<Unit filename="const.h" />
+		<Unit filename="door.h" />
+		<Unit filename="enemy.h" />
+		<Unit filename="item.h" />
+		<Unit filename="map.h" />
+		<Unit filename="newenemy4.h" />
+		<Unit filename="newenemy5.h" />
+		<Unit filename="open.h" />
+		<Unit filename="platform.h" />
+		<Unit filename="player.h" />
+		<Unit filename="test.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

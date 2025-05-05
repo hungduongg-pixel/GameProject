@@ -1,0 +1,115 @@
+# depslib dependency file v1.0
+1746199540 source:c:\hungsdl\main.cpp
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	<iostream>
+	<vector>
+	<algorithm>
+	<fstream>
+	<sstream>
+	<cmath>
+
+1746417305 source:c:\hungsdl\test.cpp
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	<iostream>
+	<vector>
+	<algorithm>
+	<fstream>
+	<sstream>
+	<cmath>
+	"const.h"
+	"open.h"
+	"camera.h"
+	"platform.h"
+	"door.h"
+	"bullet.h"
+	"item.h"
+	"newenemy5.h"
+	"enemy.h"
+	"newenemy4.h"
+	"player.h"
+	"boss.h"
+	"map.h"
+
+1746406350 c:\hungsdl\const.h
+
+1746406452 c:\hungsdl\open.h
+
+1746408519 c:\hungsdl\camera.h
+
+1746406710 c:\hungsdl\platform.h
+
+1746406771 c:\hungsdl\door.h
+
+1746406848 c:\hungsdl\bullet.h
+
+1746406891 c:\hungsdl\item.h
+
+1746441699 c:\hungsdl\newenemy5.h
+
+1746407146 c:\hungsdl\enemy.h
+
+1746407219 c:\hungsdl\newenemy4.h
+
+1746407391 c:\hungsdl\player.h
+
+1746441554 c:\hungsdl\boss.h
+
+1746407645 c:\hungsdl\map.h
+
+1746417305 source:c:\gameproject\main.cpp
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	<iostream>
+	<vector>
+	<algorithm>
+	<fstream>
+	<sstream>
+	<cmath>
+	"const.h"
+	"open.h"
+	"camera.h"
+	"platform.h"
+	"door.h"
+	"bullet.h"
+	"item.h"
+	"newenemy5.h"
+	"enemy.h"
+	"newenemy4.h"
+	"player.h"
+	"boss.h"
+	"map.h"
+
+1746406350 c:\gameproject\const.h
+
+1746406452 c:\gameproject\open.h
+
+1746408519 c:\gameproject\camera.h
+
+1746406710 c:\gameproject\platform.h
+
+1746406771 c:\gameproject\door.h
+
+1746406848 c:\gameproject\bullet.h
+
+1746406891 c:\gameproject\item.h
+
+1746441699 c:\gameproject\newenemy5.h
+
+1746407146 c:\gameproject\enemy.h
+
+1746407219 c:\gameproject\newenemy4.h
+
+1746407391 c:\gameproject\player.h
+
+1746441554 c:\gameproject\boss.h
+
+1746407645 c:\gameproject\map.h
+
